@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "Dolphins Classes API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get classes by session",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/classes?session=Summer2025",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","classes"],
+          "query": [{"key":"session","value":"Summer2025"}]
+        }
+      }
+    },
+    {
+      "name": "Get class by id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/classes/1", "host":["{{baseUrl}}"], "path":["api","classes","1"] }
+      }
+    },
+    {
+      "name": "Create class",
+      "request": {
+        "method": "POST",
+        "header":[{"key":"Content-Type","value":"application/json"}],
+        "body": {
+          "mode":"raw",
+          "raw": "{\"session\":\"Summer2025\",\"time\":\"10:00 AM\",\"level\":\"Beginner\"}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/classes", "host":["{{baseUrl}}"], "path":["api","classes"] }
+      }
+    },
+    {
+      "name": "Add student to class",
+      "request": {
+        "method": "POST",
+        "header":[{"key":"Content-Type","value":"application/json"}],
+        "body": { "mode":"raw", "raw":"{\"studentId\":5}" },
+        "url": { "raw": "{{baseUrl}}/api/classes/1/students", "host":["{{baseUrl}}"], "path":["api","classes","1","students"] }
+      }
+    }
+  ]
+}
