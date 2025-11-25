@@ -1,0 +1,101 @@
+<!-- example selects -->
+<select id="choice1Time" name="choice1Time">
+  <option value="">--select--</option>
+  <option value="10:00">10:00</option>
+  <option value="11:00">11:00</option>
+</select>
+<select id="choice2Time" name="choice2Time">
+  <option value="">--select--</option>
+  <option value="10:00">10:00</option>
+  <option value="11:00">11:00</option>
+</select>
+---------------------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  const a = document.getElementById('choice1Time');
+  const b = document.getElementById('choice2Time');
+
+  function syncDisable() {
+    const va = a.value;
+    const vb = b.value;
+    // enable all first
+    Array.from(a.options).forEach(o => o.disabled = false);
+    Array.from(b.options).forEach(o => o.disabled = false);
+
+    if (va) {
+      const o = Array.from(b.options).find(opt => opt.value === va);
+      if (o) o.disabled = true;
+    }
+    if (vb) {
+      const o2 = Array.from(a.options).find(opt => opt.value === vb);
+      if (o2) o2.disabled = true;
+    }
+  }
+
+  a.addEventListener('change', syncDisable);
+  b.addEventListener('change', syncDisable);
+
+  // final form submit check (fallback)
+  const form = document.getElementById('studentRegistrationForm'); // change id accordingly
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      if (a.value && b.value && a.value === b.value) {
+        e.preventDefault();
+        alert('Please choose different times for the two choices.');
+      }
+    });
+  }
+});
+---------------------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.session-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const form = sel.closest('form');
+      if (form) form.submit();
+    });
+  });
+});
+---------------------------------------------------------------------------------------------
+// StudentApiController.java
+@RestController
+@RequestMapping("/api/students")
+public class StudentApiController {
+    private final StudentRepository studentRepo;
+    public StudentApiController(StudentRepository studentRepo) { this.studentRepo = studentRepo; }
+
+    @GetMapping("/{id}/in-class")
+    public ResponseEntity<Map<String,Boolean>> isInClass(@PathVariable Long id) {
+        Optional<Student> s = studentRepo.findById(id);
+        if (s.isEmpty()) return ResponseEntity.notFound().build();
+        boolean inClass = s.get().getSwimmingClass() != null;
+        Map<String,Boolean> map = Collections.singletonMap("inClass", inClass);
+        return ResponseEntity.ok(map);
+    }
+}
+----------------------------------------------------------------------------------------------------
+<ul id="studentsList">
+  <li data-student-id="5" class="student-name">Alice Johnson</li>
+  <li data-student-id="6" class="student-name">Bob Smith</li>
+  ...
+</ul>
+-----------------------------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  const items = document.querySelectorAll('#studentsList .student-name');
+  items.forEach(li => {
+    const sid = li.dataset.studentId;
+    if (!sid) return;
+    fetch(`/api/students/${sid}/in-class`)
+      .then(resp => {
+        if (!resp.ok) throw resp;
+        return resp.json();
+      })
+      .then(json => {
+        if (json.inClass) {
+          li.classList.add('text-success'); // bootstrap success color
+        }
+      })
+      .catch(err => {
+        // ignore 404s for individual students or log if you want
+        console.error('Check in-class failed for student ' + sid, err);
+      });
+  });
+});
